@@ -1,0 +1,40 @@
+# Template file for 'neovide'
+pkgname=neovide
+version=0.5.0
+revision=1
+commit="d406cf6c3154090cf3056b0d21fe850af2c49b88"
+wrksrc="neovide-${commit}"
+build_style=cargo
+build_helper=rust
+hostmakedepends="cargo pkg-config"
+makedepends="libglvnd-devel sndio-devel freetype-devel fontconfig-devel SDL2-devel cmake pkg-config libressl-devel curl"
+depends="libglvnd sndio freetype fontconfig SDL2 vulkan-loader"
+short_desc="No Nonsense Neovim Client in Rust"
+maintainer="Vivian Lim <pkg@vvn.space>"
+license="MIT"
+homepage="https://github.com/Kethku/neovide"
+changelog="https://raw.githubusercontent.com/Kethku/neovide/master/README.md"
+distfiles="${homepage}/archive/${commit}.tar.gz"
+checksum=2cd469655bb9f7bec7c1e2c939a9942876c68085262795ef314029a7309cd030
+
+pre_build() {
+	cargo update --package openssl-sys --precise 0.9.58
+	cargo update --package sdl2-sys --precise 0.34.2
+
+    # Strip trailing spaces from $LDFLAGS
+    # Works around this error:
+    #
+    # CMake Error at CMakeLists.txt:1850 (add_library):
+    #   Target "SDL2-static" links to item "-Wl,-z,relro -Wl,-z,now -Wl,--as-needed
+    #   " which has leading or trailing whitespace.  This is now an error according
+    #   to policy CMP0004.
+    #
+	LDFLAGS=`echo $LDFLAGS | sed 's/ *$//g'`
+}
+
+do_install() {
+	vlicense LICENSE
+
+	vbin target/${RUST_TARGET}/release/neovide
+	vinstall assets/neovide.desktop 644 usr/share/applications
+}
