@@ -19,7 +19,6 @@ checksum=2cd469655bb9f7bec7c1e2c939a9942876c68085262795ef314029a7309cd030
 
 pre_build() {
 	cargo update --package openssl-sys --precise 0.9.58
-	cargo update --package sdl2-sys --precise 0.34.2
 
     # Strip trailing spaces from $LDFLAGS
     # Works around this error:
